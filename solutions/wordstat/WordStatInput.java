@@ -4,7 +4,10 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
-/* TODO: исправь ошибки и сделай модификацию words */
+/* TODO: Очень хорошо! Мне нравится твой код.
+         Добавил тееб пару ноутов, но в целом всё прекрасно.
+         Ещё расписал тебе, как избавиться от копипасты.
+         Сделай, пожалуйста, модификацию "Words" */
 
 public class WordStatInput {
     public static void main(String[] args) {
@@ -26,19 +29,35 @@ public class WordStatInput {
                     String line;
                     while ((line = reader.readLine()) != null) {
                         StringBuilder currWord = new StringBuilder();
+//                        for (int i = 0; i < line.length(); i++) {
+//                            char read = line.charAt(i);
+//                            if (Character.isLetter(read) || Character.getType(read) == Character.DASH_PUNCTUATION || read == '\'') { // :NOTE: так читаемее
+//                                currWord.append(Character.toLowerCase(read));
+//                            } else {
+//                                if (currWord.length() > 0) { // :NOTE: !isEmpty()
+//                                    words.put(currWord.toString(), words.getOrDefault(currWord.toString(), 0) + 1);
+//                                    currWord = new StringBuilder();
+//                                }
+//                            }
+//                        }
+//                        if (currWord.length() > 0) { // :NOTE: !isEmpty()
+//                            words.put(currWord.toString(), words.getOrDefault(currWord.toString(), 0) + 1);
+//                        }
                         for (int i = 0; i < line.length(); i++) {
                             char read = line.charAt(i);
-                            if (Character.isLetter(read) || Character.getType(read) == Character.DASH_PUNCTUATION || read == 39) {
+                            // Запоминаем, хорошая ли буква
+                            boolean accepted = Character.isLetter(read) || Character.getType(read) == Character.DASH_PUNCTUATION || read == '\'';
+                            // Если хорошая, добавляем в текущее слово
+                            if (accepted) {
                                 currWord.append(Character.toLowerCase(read));
-                            } else {
-                                if (currWord.length() > 0) {
-                                    words.put(currWord.toString(), words.getOrDefault(currWord.toString(), 0) + 1);
-                                    currWord = new StringBuilder();
-                                }
                             }
-                        }
-                        if (currWord.length() > 0) {
-                            words.put(currWord.toString(), words.getOrDefault(currWord.toString(), 0) + 1);
+                            // Если у нас набрано непустое слово и мы
+                            // (1 вариант) встали на плохую букву или (2 вариант) у нас заканчивается строка,
+                            // добавляем слово в мапу.
+                            if (!currWord.isEmpty() && (!accepted || (i + 1 == line.length()))) {
+                                words.put(currWord.toString(), words.getOrDefault(currWord.toString(), 0) + 1);
+                                currWord = new StringBuilder();
+                            }
                         }
                     }
                     for (String key : words.keySet()) {
@@ -52,6 +71,9 @@ public class WordStatInput {
                 reader.close();
             }
         } catch (FileNotFoundException e) {
+            // :NOTE: e.getLocalizedMessage() будет возвращать тебе в общем случае
+            // более подробный текст ошибки, а в худшем случае такой же как у getMessage.
+            // Поэтому, лучше использовать его.
             System.out.println("Input file not found: " + e.getMessage());
         } catch (IOException e) {
             System.out.println("Input/output error: " + e.getMessage());
