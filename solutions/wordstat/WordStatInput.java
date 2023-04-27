@@ -71,14 +71,11 @@ public class WordStatInput {
                 reader.close();
             }
         } catch (FileNotFoundException e) {
-            // :NOTE: e.getLocalizedMessage() будет возвращать тебе в общем случае
-            // более подробный текст ошибки, а в худшем случае такой же как у getMessage.
-            // Поэтому, лучше использовать его.
-            System.out.println("Input file not found: " + e.getMessage());
+            System.out.println("Input file not found: " + e.getLocalizedMessage());
         } catch (IOException e) {
-            System.out.println("Input/output error: " + e.getMessage());
+            System.out.println("Input/output error: " + e.getLocalizedMessage());
         } catch (IllegalArgumentException e) {
-            System.out.println(e.getMessage());
+            System.out.println(e.getLocalizedMessage());
         }
     }
 }
