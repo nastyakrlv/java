@@ -4,10 +4,7 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
-/* TODO: Очень хорошо! Мне нравится твой код.
-         Добавил тееб пару ноутов, но в целом всё прекрасно.
-         Ещё расписал тебе, как избавиться от копипасты.
-         Сделай, пожалуйста, модификацию "Words" */
+// TODO: Всё ок.
 
 public class WordStatWords {
     public static void main(String[] args) {
