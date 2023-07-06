@@ -1,3 +1,5 @@
 # Project exclude paths
-/out/
-/.idea/vcs.xml
+/out
+.*
+/tests
+/java.iml
