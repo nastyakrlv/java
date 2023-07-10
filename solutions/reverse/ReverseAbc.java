@@ -3,7 +3,8 @@ import scan.Scan;
 
 
 import java.util.Arrays;
-public class Reverse {
+
+public class ReverseAbc {
     public static void main(String[] args) {
         Scan in = new Scan(System.in);
         String line;
