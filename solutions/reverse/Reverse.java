@@ -4,11 +4,11 @@ import scan.Scan;
 
 import java.util.Arrays;
 public class Reverse {
-    public static void main(String[] args) {
+    public static void main(String[] args)  {
         Scan in = new Scan(System.in);
         String line;
         int elem = -1;
-        String[][] reverse = new String[4096][];
+        String[][] reverse = new String[4096][]; // TODO: поставить меньше size + хранить примитивы вместо строк
         while (in.hasNextLine()) {
             elem++;
             if (elem >= reverse.length) {
@@ -16,6 +16,7 @@ public class Reverse {
             }
             reverse[elem] = new String[16];
             line = in.nextLine();
+            // TODO: обойдись одни инстансом сканнера
             Scan currentStringScanner = new Scan(line);
             int i = 0;
             while (currentStringScanner.hasNextInt()) {
@@ -34,5 +35,6 @@ public class Reverse {
             }
             System.out.println();
         }
+        // TODO: обработка ошибок (и работа с ресурсами) сюда же
     }
 }
