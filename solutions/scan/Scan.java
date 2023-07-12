@@ -2,6 +2,7 @@ package scan;
 
 import java.io.*;
 import java.util.Arrays;
+import java.util.InputMismatchException;
 
 public class Scan {
     private final BufferedReader reader;
@@ -12,7 +13,7 @@ public class Scan {
 
     public Scan(InputStream inputStream) {
         reader = new BufferedReader(new InputStreamReader(inputStream));
-        buffer = new char[4096];
+        buffer = new char[256];
         usefulBufferLength = bufferIndex = flag = 0;
     }
 
@@ -22,82 +23,100 @@ public class Scan {
 
     public boolean hasNextLine() throws IOException {
         int startIndex = bufferIndex;
-        while (flag != -1) {
-            char symbol = nextChar();
-            // TODO: поддержать \n\r или \r\n
-            if (symbol == '\n' || symbol == '\r') {
-                // возвращаем индекс в начало после прочтения строки
-                bufferIndex = startIndex;
-                return true;
+        boolean isNewLine = false;
+        if (flag==-1) {
+            return false;
+        }
+        for (char symbol = nextChar();
+             !isNewLine && flag!=-1;
+             symbol=nextChar()) {
+            if (symbol == '\r') {
+                isNewLine = true;
+                symbol = nextChar();
+                if (!(symbol == '\n')) {
+                    bufferIndex--;
+                    break;
+                }
+            } else if (symbol == '\n') {
+                isNewLine = true;
             }
         }
-        // возвращаем индекс в начало, если мы достигли конца файла
         bufferIndex = startIndex;
-        return false;
+        return isNewLine;
     }
 
+
     public String nextLine() throws IOException {
-        //считывает всю введенную строку
         StringBuilder lineBuffer = new StringBuilder();
-        for (char symbol = nextChar();
-            // TODO: поддержать \n\r или \r\n
-             symbol != '\n' && symbol != '\r' && flag!=-1;
+        char symbol;
+        for (symbol = nextChar();
+             symbol != '\n' && symbol != '\r';
              symbol = nextChar()) {
             lineBuffer.append(symbol);
+        }
+        if (flag != -1 && symbol == '\r') {
+            if (nextChar()!='\n') {
+                bufferIndex--;
+            }
         }
         return lineBuffer.toString();
     }
 
     public boolean hasNextInt() throws IOException {
-        //проверяет, что следующая последовательность символов является int-ом
-        int startIndex = bufferIndex;
+        //TODO: MAXVALUE
         StringBuilder lineBuffer = new StringBuilder();
-        while (flag != -1) {
+        int startIndex = bufferIndex;
+        boolean hasNumber = false;
+        if (flag==-1) {
+            return false;
+        }
+        while (true) {
             char symbol = nextChar();
-            // TODO: хуйня
-            if (Character.isDigit(symbol) || symbol == 'a' || symbol == 'b' || symbol == 'c' || symbol == 'd' || symbol == 'e' || symbol == 'f' || symbol == 'g' || symbol == 'h' || symbol == 'i' || symbol == 'j' || symbol == '+' || symbol == '-') {
-                lineBuffer.append(symbol);
-            } else {
-                // TODO: парсятся некорректный числа, переработать
-                if (lineBuffer.length() == 0) {
-                    if (flag==-1) {
-                        bufferIndex = startIndex;
-                        return false;
+            if (Character.isWhitespace(symbol) || flag ==-1) {
+                if (lineBuffer.length() > 0) {
+                    try {
+                        Integer.parseInt(lineBuffer.toString());
+                        hasNumber = true;
+                    } catch (NumberFormatException e) {
+                        hasNumber = false;
                     }
-                } else {
-                    bufferIndex = startIndex;
-                    return true;
+                    break;
+                } else if (flag ==-1 && lineBuffer.length() == 0) {
+                    break;
                 }
+            } else {
+                lineBuffer.append(symbol);
             }
         }
-        // возвращаем индекс в начало, если мы достигли конца файла
         bufferIndex = startIndex;
-        return lineBuffer.length() > 0;
+        return hasNumber;
     }
 
-    public String nextInt() throws IOException {
-        //считывает введенное число int
+
+    public int nextInt() throws IOException {
         StringBuilder lineBuffer = new StringBuilder();
-        // TODO: for лучше
         while (true) {
-            if (flag==-1 && usefulBufferLength ==bufferIndex) {
+            if (flag==-1 && usefulBufferLength==bufferIndex) {
                 break;
             }
             char symbol = nextChar();
-            // TODO: хуйня + парсятся некорректный числа, переработать
-            if (Character.isDigit(symbol) || symbol  == 'a' || symbol == 'b' || symbol == 'c' || symbol == 'd' || symbol == 'e' || symbol == 'f' || symbol == 'g' || symbol == 'h' || symbol == 'i' || symbol == 'j' || symbol == '+' || symbol == '-') {
-                lineBuffer.append(symbol);
-            } else {
-                if (lineBuffer.length() > 0 && Character.isWhitespace(symbol)) {
+            if (Character.isWhitespace(symbol) ) {
+                if (lineBuffer.length() > 0) {
                     break;
                 }
+            } else {
+                lineBuffer.append(symbol);
             }
         }
-        return lineBuffer.toString();
+        try {
+            return Integer.parseInt(lineBuffer.toString());
+        } catch (NumberFormatException e) {
+            throw new InputMismatchException(e.getLocalizedMessage());
+        }
     }
 
-    // TODO: обработай ошибку заходи за конец потока
-    protected char nextChar() throws IOException { // TODO: весь поток всегда хранится в памяти, переделать
+    // TODO: обработай ошибку заходи за конец потока - ??
+    protected char nextChar() throws IOException { // TODO: весь поток всегда хранится в памяти, переделать - полная хуета получилась shiftbuffer
         if (bufferIndex >= usefulBufferLength) {
             if (bufferIndex >= buffer.length) {
                 buffer = Arrays.copyOf(buffer, buffer.length * 2);
@@ -111,6 +130,16 @@ public class Scan {
         }
         return buffer[this.bufferIndex++];
     }
+
+    private void shiftBuffer() {
+        int remainingChars = usefulBufferLength - bufferIndex;
+        if (remainingChars > 0) {
+            System.arraycopy(buffer, bufferIndex, buffer, 0, remainingChars);
+        }
+        usefulBufferLength = remainingChars;
+        bufferIndex = 0;
+    }
+
 
 }
 

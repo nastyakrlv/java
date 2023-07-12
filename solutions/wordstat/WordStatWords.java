@@ -54,11 +54,11 @@ public class WordStatWords {
                 reader.close();
             }
         } catch (FileNotFoundException e) {
-            System.out.println("Input file not found: " + e.getLocalizedMessage());
+            System.err.println("Input file not found: " + e.getLocalizedMessage());
         } catch (IOException e) {
-            System.out.println("Input/output error: " + e.getLocalizedMessage());
+            System.err.println("Input/output error: " + e.getLocalizedMessage());
         } catch (IllegalArgumentException e) {
-            System.out.println(e.getLocalizedMessage());
+            System.err.println(e.getLocalizedMessage());
         }
     }
 }
