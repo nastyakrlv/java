@@ -31,7 +31,7 @@ public class ReverseAbc {
 //                    }
 //                }
 //                Scanner currentStringScanner = new Scanner(output.toString());
-                char[] cs = line.toCharArray();
+                char[] cs = line.toCharArray(); // Норм.
                 for (int i = 0; i < cs.length; i++) {
                     if (Character.isLetter(cs[i])) {
                         int ch = (cs[i] - 'a');
@@ -71,6 +71,9 @@ public class ReverseAbc {
                 System.out.println();
             }
             // TODO: обработка ошибок (и работа с ресурсами) сюда же
+            /*
+              Обрати внимание на обработку ошибок в WordStatWords.
+             */
         } catch (IOException e) {
             System.err.println("ERROR:" + e.getLocalizedMessage());
         }

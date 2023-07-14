@@ -39,6 +39,9 @@ public class Reverse {
                 System.out.println();
             }
             // TODO: обработка ошибок (и работа с ресурсами) сюда же
+            /*
+              Обрати внимание на обработку ошибок в WordStatWords.
+             */
         } catch (IOException e) {
             System.err.println("ERROR:" + e.getLocalizedMessage());
         }
