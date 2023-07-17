@@ -3,6 +3,7 @@ package scan;
 import java.io.*;
 import java.util.Arrays;
 import java.util.InputMismatchException;
+import java.util.regex.Pattern;
 
 public class Scan {
     private final BufferedReader reader;
@@ -10,11 +11,13 @@ public class Scan {
     private int flag;
     private int usefulBufferLength;
     private int bufferIndex;
+//    private final Pattern INT_PATTERN;
 
     public Scan(InputStream inputStream) { // Хорошо
         reader = new BufferedReader(new InputStreamReader(inputStream));
         buffer = new char[256];
         usefulBufferLength = bufferIndex = flag = 0;
+//        INT_PATTERN = Pattern.compile("^((-?[1-9]\\d{0,9})|0)$");//TODO: АКИМ проверить что быстрее isValidInt или try catch
     }
 
     public Scan(String inputStream) { // Хорошо
@@ -63,7 +66,7 @@ public class Scan {
     }
 
     public boolean hasNextInt() throws IOException {
-        //TODO: MAXVALUE
+        //TODO: MAXVALUE *
         StringBuilder lineBuffer = new StringBuilder();
         int startIndex = bufferIndex;
         boolean hasNumber = false;
@@ -73,8 +76,10 @@ public class Scan {
         while (true) {
             char symbol = nextChar();
             if (Character.isWhitespace(symbol) || flag ==-1) {
-                if (lineBuffer.length() > 0) {
-                    try { /* TODO: исправить.
+                if (!lineBuffer.isEmpty()) {
+//                    hasNumber = isValidInt(lineBuffer.toString()); //TODO: АКИМ проверить что быстрее isValidInt или try catch
+//                    break;
+                    try { /* TODO: исправить. *
                             Написать отдельный метод для валидации int'a,
                             не надеяться на ислючения
 
@@ -103,20 +108,20 @@ public class Scan {
 
     public int nextInt() throws IOException {
         StringBuilder lineBuffer = new StringBuilder();
-        while (true) { // TODO: for loop
+        while (true) { // TODO: for loop *пробовала уже, но стало хуже - сначала проверяем потом считываем
             if (flag==-1 && usefulBufferLength==bufferIndex) {
                 break;
             }
             char symbol = nextChar();
             if (Character.isWhitespace(symbol) ) {
-                if (lineBuffer.length() > 0) { // TODO: !empty()
+                if (!lineBuffer.isEmpty()) { // TODO: !empty() *
                     break;
                 }
             } else {
                 lineBuffer.append(symbol);
             }
         }
-        try { // good
+        try { // good//TODO: АКИМ проверить что быстрее isValidInt или try catch
             return Integer.parseInt(lineBuffer.toString());
         } catch (NumberFormatException e) {
             throw new InputMismatchException(e.getLocalizedMessage());
@@ -157,6 +162,15 @@ public class Scan {
         return buffer[this.bufferIndex++];
     }
 
+//    private boolean isValidInt(String pat) {//TODO: АКИМ проверить что быстрее isValidInt или try catch
+//        long num;
+//        if (INT_PATTERN.matcher(pat).matches()) {
+//            num =  Long.parseLong(pat);
+//            return (Integer.MAX_VALUE >= num) && (Integer.MIN_VALUE <= num);
+//        }
+//        return false;
+//    }
+
     @Deprecated
     private void shiftBuffer() { // Тебе не нужно никуда сдвигать буффер.
         int remainingChars = usefulBufferLength - bufferIndex;
@@ -166,6 +180,7 @@ public class Scan {
         usefulBufferLength = remainingChars;
         bufferIndex = 0;
     }
+
 
 }
 

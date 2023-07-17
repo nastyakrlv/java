@@ -11,7 +11,7 @@ public class Reverse {
             Scan in = new Scan(System.in);
             String line;
             int elem = -1;
-            int[][] reverse = new int[256][]; // TODO: поставить меньше size + хранить примитивы вместо строк
+            int[][] reverse = new int[256][]; // TODO: поставить меньше size + хранить примитивы вместо строк *
             while (in.hasNextLine()) {
                 elem++;
                 if (elem >= reverse.length) {
