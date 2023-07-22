@@ -1,31 +1,28 @@
 package scan;
 
-import javax.print.MultiDocPrintService;
 import java.io.*;
 import java.util.Arrays;
 import java.util.InputMismatchException;
-import java.util.NoSuchElementException;
 import java.util.regex.Pattern;
 
-public class Scan {
+public class Scan implements AutoCloseable {
     private final BufferedReader reader;
     private char[] buffer;
-    private int flag; // unused variable
     private int usefulBufferLength;
     private int bufferIndex;
     private boolean endOfFile;
-    private final int  size; // 1) OPT+CMD+L 2) defaultSize
-
+    private final int defaultSize;
     private final Pattern INT_PATTERN;
 
     public Scan(InputStream inputStream) { // Хорошо
         reader = new BufferedReader(new InputStreamReader(inputStream));
-        size = 32;
-        buffer = new char[size];
-        usefulBufferLength = bufferIndex = flag = 0;
+        defaultSize = 64;
+        buffer = new char[defaultSize];
+        usefulBufferLength = bufferIndex = 0;
         endOfFile = false;
-        INT_PATTERN = Pattern.compile("^((-?[1-9]\\d{0,9})|0)$");//TODO: АКИМ проверить что быстрее isValidInt или try catch
+        INT_PATTERN = Pattern.compile("^((-?[1-9]\\d{0,9})|0)$");
     }
+
 
     public Scan(String inputStream) { // Хорошо
         this(new ByteArrayInputStream(inputStream.getBytes()));
@@ -44,7 +41,7 @@ public class Scan {
             lineBuffer.append(symbol);
         }
         if (!endOfFile && symbol == '\r') {
-            if (nextChar()!='\n') {
+            if (nextChar() != '\n') {
                 bufferIndex--;
             }
         }
@@ -79,7 +76,7 @@ public class Scan {
         StringBuilder lineBuffer = new StringBuilder();
         while (hasNextChar()) { // Похожая логика выше. Упростить.
             char symbol = nextChar();
-            if (Character.isWhitespace(symbol) ) {
+            if (Character.isWhitespace(symbol)) {
                 if (!lineBuffer.isEmpty()) {
                     break;
                 }
@@ -91,7 +88,7 @@ public class Scan {
         if (isValidInt(lineBuffer.toString())) {
             return Integer.parseInt(lineBuffer.toString());
         } else {
-            throw new InputMismatchException("дописать");
+            throw new InputMismatchException("Invalid input");
         }
     }
 
@@ -106,52 +103,48 @@ public class Scan {
             }
             refillBuffer();
         }
-        return bufferIndex < usefulBufferLength; // Судя по бренчам метода refillBuffer исход данного сравнения однозначен
+        return bufferIndex < usefulBufferLength;
     }
 
-    private void refillBuffer() throws IOException { // Этот метод можно значительно упростить, и не только там, где я расставил комментарии
-        boolean ok = false; // Эта переменная не нужна, читать комменты ниже
+    private void refillBuffer() throws IOException {
         int usefulCharacters = usefulBufferLength - bufferIndex;
         if (usefulCharacters > 0) {
-            if (usefulCharacters > size) { // Этот бранч никогда не выполнится
-                assert(false);
-//                ok = true;
-//                char[] temp = new char[usefulCharacters];
-//                System.arraycopy(buffer, bufferIndex, temp, 0, usefulCharacters);
-//                buffer = temp;
-//                usefulBufferLength = usefulCharacters;
-//                bufferIndex = 0;
-            } else if (usefulBufferLength > size)  { // В чем семантический смысл не делать это всегда?
-                char[] temp = new char[size];
+            if (usefulCharacters > defaultSize) {
+                char[] temp = new char[usefulCharacters];
+                System.arraycopy(buffer, bufferIndex, temp, 0, usefulCharacters);
+                buffer = temp;
+                usefulBufferLength = usefulCharacters;
+                bufferIndex = 0;
+            } else if (usefulBufferLength > defaultSize) {
+                char[] temp = new char[defaultSize];
                 System.arraycopy(buffer, bufferIndex, temp, 0, usefulCharacters);
                 buffer = temp;
                 usefulBufferLength = usefulCharacters;
                 bufferIndex = 0;
             }
-        } else { // Эту ветку можно заифать в начале и смерджить с условием ниже
-            ok = true;
-            buffer = new char[size];
+        } else { // Эту ветку можно заифать в начале и смерджить с условием ниже *
+            buffer = new char[defaultSize];
             usefulBufferLength = 0;
             bufferIndex = 0;
+            readerRead(usefulBufferLength);
         }
-        if (ok) { // Наверх
-            int count = reader.read(buffer, usefulBufferLength, buffer.length - usefulBufferLength);
-            if (count != -1) {
-                usefulBufferLength += count;
-            } else {
-                endOfFile = true;
-            }
-        }
-
-
     }
 
     private void increaseBuffer() throws IOException {
         if (bufferIndex >= buffer.length) {
-                buffer = Arrays.copyOf(buffer, buffer.length * 2);
-            } // OPT+CMD+L
-        // COPY-PASTE 16 lines above
-        int count = reader.read(buffer, bufferIndex, buffer.length - bufferIndex); // Почему не defaultSize? Мы же договорились считывать блоками по defaultSize?
+            buffer = Arrays.copyOf(buffer, buffer.length * 2);
+        }
+        // COPY-PASTE 16 lines above *
+        readerRead(bufferIndex);
+    }
+
+    @Override
+    public void close() throws IOException {
+        reader.close();
+    }
+
+    private void readerRead(int start) throws IOException {
+        int count = reader.read(buffer, start, buffer.length - usefulBufferLength);
         if (count != -1) {
             usefulBufferLength += count;
         } else {
@@ -159,12 +152,10 @@ public class Scan {
         }
     }
 
-    public void close() throws IOException { reader.close(); } // Тогда бы уж реализовала Auto-Closable
-
     private boolean isValidInt(String pat) {
         long num;
         if (INT_PATTERN.matcher(pat).matches()) {
-            num =  Long.parseLong(pat);
+            num = Long.parseLong(pat);
             return (Integer.MAX_VALUE >= num) && (Integer.MIN_VALUE <= num);
         }
         return false;
