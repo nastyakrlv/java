@@ -4,6 +4,7 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.InputMismatchException;
+import java.util.NoSuchElementException;
 import java.util.regex.Pattern;
 
 public class Scan implements AutoCloseable {
@@ -46,7 +47,11 @@ public class Scan implements AutoCloseable {
                 bufferIndex--;
             }
         }
-        return lineBuffer.toString();
+        if (!lineBuffer.isEmpty()) {
+            return lineBuffer.toString();
+        } else {
+            throw new NoSuchElementException("No line found");
+        }
     }
 
     public boolean hasNextInt() throws IOException {
