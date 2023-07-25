@@ -1,6 +1,7 @@
 package scan;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.InputMismatchException;
 import java.util.regex.Pattern;
@@ -15,7 +16,7 @@ public class Scan implements AutoCloseable {
     private final Pattern INT_PATTERN;
 
     public Scan(InputStream inputStream) { // Хорошо
-        reader = new BufferedReader(new InputStreamReader(inputStream));
+        reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
         defaultSize = 64;
         buffer = new char[defaultSize];
         usefulBufferLength = bufferIndex = 0;
