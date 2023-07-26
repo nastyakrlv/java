@@ -25,6 +25,7 @@ public class Scan implements AutoCloseable {
         INT_PATTERN = Pattern.compile("^((-?[1-9]\\d{0,9})|0)$");
     }
 
+    public Scan(File inputStream) throws FileNotFoundException { this(new FileInputStream(inputStream)); }
 
     public Scan(String inputStream) { // Хорошо
         this(new ByteArrayInputStream(inputStream.getBytes()));

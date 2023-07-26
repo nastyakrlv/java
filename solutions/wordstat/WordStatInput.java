@@ -25,7 +25,7 @@ public class WordStatInput {
                         StandardCharsets.UTF_8
                 ));
                 try { // основной код
-                    LinkedHashMap<String, Integer> words = new LinkedHashMap<>();
+                    Map<String, Integer> words = new LinkedHashMap<>();
                     String line;
                     while ((line = reader.readLine()) != null) {
                         StringBuilder currWord = new StringBuilder();
